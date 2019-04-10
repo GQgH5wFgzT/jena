@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 final
 public class RecordFactory
 {
+    public static final RecordFactory tripleRecordFactory = new RecordFactory(64, 0);
+
     private final int keyLength ;
     private final int valueLength ;
     private final int slotLen ;

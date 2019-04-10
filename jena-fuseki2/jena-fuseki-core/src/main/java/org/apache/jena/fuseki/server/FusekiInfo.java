@@ -49,6 +49,7 @@ public class FusekiInfo {
 //                log.error("No dataset path nor server configuration file");
 //        }
         
+        FmtLog.info(log,  "Leapfrog v0.1.0");
         if ( serverConfig.datasetPath != null ) {
             if ( z.size() != 1 )
                 log.error("Expected only one dataset");

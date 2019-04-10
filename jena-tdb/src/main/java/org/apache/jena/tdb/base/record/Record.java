@@ -19,10 +19,12 @@
 package org.apache.jena.tdb.base.record;
 
 import static java.lang.String.format;
+import static org.apache.jena.tdb.base.record.RecordFactory.tripleRecordFactory;
 
 import java.util.Arrays;
 
 import org.apache.jena.atlas.lib.Bytes ;
+import org.apache.jena.tdb.store.NodeId;
 import org.apache.jena.tdb.sys.SystemTDB ;
 
 /** A record is pair of key and value.  It may be all key, in which case value is null. 
@@ -35,6 +37,7 @@ public class Record //implements Comparable<Record>
      * Records of fixed size (controlled by the factory).
      */
     public static final Record NO_REC = null ;
+    public static final Record zeroTripleRecord = tripleRecordFactory.create(new byte[3 * NodeId.SIZE]) ;
     
     final private byte[] key ;
     final private byte[] value ;

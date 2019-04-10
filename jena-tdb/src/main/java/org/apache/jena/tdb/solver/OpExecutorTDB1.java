@@ -126,7 +126,7 @@ public class OpExecutorTDB1 extends OpExecutor
     {
         if ( ! isForTDB )
             return super.execute(opBGP, input) ;
-        
+
         GraphTDB graph = (GraphTDB)execCxt.getActiveGraph() ;
         return executeBGP(graph, opBGP, input, null, execCxt) ;
        
@@ -141,7 +141,7 @@ public class OpExecutorTDB1 extends OpExecutor
     //        DatasetGraph dg = execCxt.getDataset() ;
     //        if ( ! ( dg instanceof DatasetGraphTDB ) )
     //            throw new InternalErrorException("Not a TDB backed dataset in quad pattern execution") ;
-        
+
         DatasetGraphTDB ds = (DatasetGraphTDB)execCxt.getDataset() ;
         BasicPattern bgp = quadPattern.getBasicPattern() ;
         Node gn = quadPattern.getGraphNode() ;

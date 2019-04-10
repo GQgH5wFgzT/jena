@@ -26,12 +26,17 @@ import static org.apache.jena.tdb.base.record.Record.keyNE ;
 import static org.apache.jena.tdb.index.bplustree.BPlusTreeParams.CheckingNode ;
 import static org.apache.jena.tdb.index.bplustree.BPlusTreeParams.CheckingTree ;
 import static org.apache.jena.tdb.index.bplustree.BPlusTreeParams.DumpTree ;
+
+import java.util.Stack;
+
 import org.apache.jena.atlas.io.IndentedLineBuffer ;
 import org.apache.jena.atlas.io.IndentedWriter ;
 import org.apache.jena.tdb.base.block.Block ;
 import org.apache.jena.tdb.base.buffer.PtrBuffer ;
 import org.apache.jena.tdb.base.buffer.RecordBuffer ;
 import org.apache.jena.tdb.base.record.Record ;
+import org.apache.jena.tdb.base.record.RecordFactory;
+import org.apache.jena.tdb.store.NodeId;
 import org.apache.jena.tdb.sys.SystemTDB ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
@@ -367,14 +372,14 @@ public final class BPTreeNode extends BPTreePage
     /** Do not use without great care */
     RecordBuffer getRecordBuffer()   { return records ; }
     /** Do not use without great care */
-    PtrBuffer getPtrBuffer()         { return ptrs ; }
+    public PtrBuffer getPtrBuffer()  { return ptrs ; }
     
     void setIsLeaf(boolean isLeaf)   { this.isLeaf = isLeaf ; }
 
     boolean isLeaf()                 { return this.isLeaf ; }
     
     @Override
-    public final int getId()                { return id ; }
+    public final int getId()         { return id ; }
 
     @Override
     final void write()          { bpTree.getNodeManager().write(this) ; } 
@@ -383,7 +388,7 @@ public final class BPTreeNode extends BPTreePage
     final void promote()        { bpTree.getNodeManager().promote(this) ; }
 
     @Override
-    final void release()        { bpTree.getNodeManager().release(this) ; } 
+    public final void release() { bpTree.getNodeManager().release(this) ; }
 
     @Override
     final void free()           { bpTree.getNodeManager().free(this) ; } 
@@ -469,7 +474,7 @@ public final class BPTreeNode extends BPTreePage
         return r ;
     }
 
-    private static int convert(int idx)
+    public static int convert(int idx)
     {
         if ( idx >= 0 ) return idx ;
         return decodeIndex(idx) ;
@@ -1139,7 +1144,7 @@ public final class BPTreeNode extends BPTreePage
         catch (ClassCastException ex) { error("Wrong type: "+other) ; return null ; }
     }
 
-    final int findSlot(Record rec)
+    public final int findSlot(Record rec)
     {
         int x = records.find(rec) ;
         return x ;
@@ -1538,5 +1543,36 @@ public final class BPTreeNode extends BPTreePage
         bpTree.getRecordsMgr().dump() ;
         System.out.println("---") ;
         System.out.flush();
+    }
+
+    public Record getLowOrZeroRecord()
+    {
+        if (records.getSize() > 0)
+            return records.getLow() ;
+        else
+            return Record.zeroTripleRecord ;
+    }
+
+    public Record getHighOrZeroRecord()
+    {
+        if (records.getSize() > 0)
+            return records.getHigh() ;
+        else
+            return Record.zeroTripleRecord ;
+    }
+
+    public BPTreeRecords search(Stack<BPTreeNode> nodes, Record rec)
+    {
+        nodes.push(this) ;
+
+        BPTreePage p = findHere(rec) ;
+        if (p instanceof BPTreeNode)
+        {
+            BPTreeNode n = (BPTreeNode) p ;
+            nodes.push(n);
+            return n.search(nodes, rec) ;
+        }
+        else
+            return (BPTreeRecords) p ;
     }
 }
